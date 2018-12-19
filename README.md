@@ -8,10 +8,10 @@ Commands for the media player are sent as text over serial at 9600 baud, for exa
 
 The raspberry pi needs additional code to interpret these signals: the power code is quite simple, the serial and media control is a bit more involved, but available on my other repos.
 
-This is intended for an Arduino Nano or Pro Mini with some extra components:
--Separated DC-DC stepdown
--A relay module to switch unregulated power to the Rpi
--2 LED to signal Arduino and Rpi status.
--A passive buzzer of the correct voltage
--A logic-level converter with 4 channels
--3 push buttons and a rotary encoder and switch with hardware debounce, I used an IQAudio Cosmic Controller.
+Extra components required:
+- Separated DC-DC stepdown
+- A relay module to switch unregulated power to the Rpi
+- 2 LED to signal Arduino and Rpi status.
+- A passive buzzer of the correct voltage
+- A logic-level converter with 4 channels (a must if you're not using a 3.3v Arduino, and even if so, still recommended to avoid strange stuff)
+- 3 push buttons and a rotary encoder and switch with hardware debounce, I used an IQAudio Cosmic Controller.
