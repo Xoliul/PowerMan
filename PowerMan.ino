@@ -47,6 +47,91 @@ enum relayEnum {
 
 StateEnum powerState = OFF;
 
+class AverageSampler {
+  int numSamples;
+  int SamplingDuration;
+  int* SampleArray;
+  bool FirstRun;
+  int CurrentTime;
+  int CurrentIndex;
+  int Total;
+
+
+  public:
+    int Average;
+    AverageSampler(int samples, int duration) :
+      numSamples(samples),
+      SamplingDuration(duration)
+    {     
+    }
+
+  void start() {
+    SampleArray = new int[numSamples];
+    for (int i = 0; i < numSamples; i++) {
+    SampleArray[i] = 0;
+    }
+    FirstRun = true;
+    CurrentTime = 0;
+    CurrentIndex = 0;
+    Total = 0;
+    Average = 0;
+    }
+
+  void SetSample(int sample, int timestep){
+    if (FirstRun)
+    {
+      DoFirstRun(sample);
+    }
+    if (CurrentTime == 0)
+    {
+      SampleArray[CurrentIndex] = sample;
+      CurrentIndex += 1;
+  
+      // if we're at the end of the array...
+      if (CurrentIndex >= numSamples) {
+        // ...wrap around to the beginning:
+        CurrentIndex = 0;
+      }
+      //calculate total
+      Total = 0;
+      for (int i = 0; i < numSamples; i++) {
+        Total += SampleArray[i];
+      }
+      //long average
+      Average = int(floor(float(Total) / float(numSamples)));
+    }
+    CurrentTime += timestep;
+    if (CurrentTime > SamplingDuration/numSamples)
+    {
+      CurrentTime = 0;
+    }
+    
+  }
+
+  
+  String GetAverage(){
+      float tempTotal = 0.0;
+      for (int i = 0; i < numSamples; i++) {
+        Total += float(SampleArray[i]);
+      }
+      //long average
+      float tempAverage = float(Total) / float(numSamples);
+    
+    String temp = String(tempAverage);
+    return temp;
+  }
+
+  void DoFirstRun(int sample){
+    for (int i = 0; i < numSamples; i++) {
+    SampleArray[i] = sample;
+    }
+    FirstRun = false;
+  }
+};
+
+AverageSampler AccSampler(5, 500);
+  
+
 class ButtonTimer {
     unsigned short pin;
     unsigned short m_ledpin;
@@ -353,11 +438,34 @@ void playTone(int chime) {
   }
 }
 
+void initiateShutdown() {
+  Serial.println("log: Shutting down...");
+  digitalWrite(rpiShutdownPin, LOW);
+  playTone(shutdownChime);
+  powerState = STOPPING;
+}
+
+void initiateStartup() {
+  if (powerState == OFF) {
+        Serial.println("log: Starting from OFF");
+        playTone(startupChime);
+        setPowerState(POWER_ON);
+        powerState = STARTING;
+  }
+}
+
 unsigned long lastAccBroadcast = millis();
+unsigned long lastAccCheck = millis();
 
 void checkStates() {
   //check input pins
-  if (digitalRead(accPin) == HIGH)
+
+  unsigned long delta = millis() - lastAccCheck;
+  
+  int accvalue = digitalRead(accPin);
+  AccSampler.SetSample(accvalue,delta);
+  lastAccCheck = millis();
+  if (AccSampler.Average == HIGH)
   {
     if(acc_On == false){
       Serial.println("power:acc_on");
@@ -467,22 +575,6 @@ void setPowerState(relayEnum p_state) {
       digitalWrite(rpi12VSupplyPin, HIGH);
       digitalWrite(rpiShutdownPin, HIGH);
       break;
-  }
-}
-
-void initiateShutdown() {
-  Serial.println("log: Shutting down...");
-  digitalWrite(rpiShutdownPin, LOW);
-  playTone(shutdownChime);
-  powerState = STOPPING;
-}
-
-void initiateStartup() {
-  if (powerState == OFF) {
-        Serial.println("log: Starting from OFF");
-        playTone(startupChime);
-        setPowerState(POWER_ON);
-        powerState = STARTING;
   }
 }
 
@@ -614,6 +706,7 @@ void setup() {
   digitalWrite(rpiShutdownPin, HIGH);
   digitalWrite(rpi12VSupplyPin, LOW);
 
+  AccSampler.start();
 }
 
 void loop() {
