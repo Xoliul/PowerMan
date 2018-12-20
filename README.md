@@ -10,5 +10,7 @@ The raspberry pi needs additional code to interpret these signals: the power cod
 
 More info:
 Photos: https://photos.google.com/share/AF1QipNOalSMYOtYQD1bHhmhJNEraALUsxx1hYXyfX8KLlF5mXhvgUfo9PTx3TV2ps-Vuw?key=SXJBNlMyUThsRFEtbjJHa1V4aWxrYUlvcS15NFlR
+
 Partlist: https://docs.google.com/spreadsheets/d/13uf0IYDIL0jGhBBMnfD-xuNvdJcvdOVAqd9ZSzGYDHY/edit?usp=sharing
+
 3D Model Files: https://www.thingiverse.com/thing:3299786
