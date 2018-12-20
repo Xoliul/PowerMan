@@ -9,6 +9,7 @@ Commands for the media player are sent as text over serial at 9600 baud, for exa
 The raspberry pi needs additional code to interpret these signals: the power code is quite simple, the serial and media control is a bit more involved, but available on my other repos.
 
 More info:
+
 Photos: https://photos.google.com/share/AF1QipNOalSMYOtYQD1bHhmhJNEraALUsxx1hYXyfX8KLlF5mXhvgUfo9PTx3TV2ps-Vuw?key=SXJBNlMyUThsRFEtbjJHa1V4aWxrYUlvcS15NFlR
 
 Partlist: https://docs.google.com/spreadsheets/d/13uf0IYDIL0jGhBBMnfD-xuNvdJcvdOVAqd9ZSzGYDHY/edit?usp=sharing
