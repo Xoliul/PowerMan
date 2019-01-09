@@ -456,6 +456,7 @@ void initiateStartup() {
 
 unsigned long lastAccBroadcast = millis();
 unsigned long lastAccCheck = millis();
+unsigned long shutOffTime = millis();
 
 void checkStates() {
   //check input pins
@@ -492,6 +493,8 @@ void checkStates() {
     lastAccBroadcast = millis();
   }
 
+  int shutoffDelta = millis()-shutOffTime;
+
   if (digitalRead(rpi3VPin) == LOW)
   {
     if (rpi_On == false) {
@@ -504,11 +507,24 @@ void checkStates() {
   else if (digitalRead(rpi3VPin) == HIGH) {
     if (rpi_On == true) {
       rpi_On = false;
-      powerState = OFF;
+      if (powerState == STOPPING){
+        powerState = IDLING;
+        shutOffTime = millis();
+      }
+      else{
+        powerState = OFF;
+      }
       //digitalWrite(rpiShutdownPin, HIGH);
       playTone(doneChime);
       Serial.println("log: Raspberry Pi stopped!");
     }
+    else if (rpi_On == false and shutoffDelta > 5000 and powerState == IDLING) {
+      powerState = OFF;
+      shutoffDelta = 0;
+      setPowerState(POWER_OFF);
+      Serial.println("log: Rpi Power switched off after shutdown.");
+    }
+    
   }
 
 }
@@ -543,7 +559,7 @@ void doPowerLEDs() {
     case IDLING:
       led1Fader.Change(BOUNCE, 2000, 0, 32);
       analogWrite(led1Pin, led1Fader.doFade(millis()) );
-      led2Fader.Change(BOUNCE, 2000, 0, 32);
+      led2Fader.Change(BOUNCE, 2000, 0, 16);
       analogWrite(led2Pin, led2Fader.doFade(millis()) );
       break;
     case STOPPING:
